@@ -1,76 +1,147 @@
-# React + TypeScript + Vite
+# BLACK NODE — WebSocket Control Panel
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A responsive, real-time WebSocket control panel built with React, TypeScript, and Vite as part of the BLACK NODE Frontend Internship technical assessment.
 
-Currently, two official plugins are available:
+## Overview
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+This application demonstrates client-side WebSocket connection management through a reusable React hook and a monitoring interface.
 
-## React Compiler
+The focus is on connection lifecycle management, predictable state transitions, error handling, and testability.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Features
 
-## Expanding the ESLint configuration
+- Connect to and disconnect from a WebSocket server
+- Send and receive messages in real time
+- Display connection states: disconnected, connecting, connected, disconnecting, and error
+- Handle unexpected disconnections and support manual reconnection
+- Prevent duplicate connection and disconnection actions
+- Display sent and received message activity
+- Preserve message history during reconnection
+- Automatically scroll to new messages while respecting manual scrolling
+- Responsive dark-themed monitoring interface
+- Accessible connection feedback and form controls
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Tech Stack
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+- React
+- TypeScript
+- Vite
+- Native WebSocket API
+- CSS
+- Vitest
+- React Testing Library
+- jsdom
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+## Project Structure
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
+```text
+black-node-frontend/
+├── src/
+│   ├── hooks/
+│   │   ├── useWebSocket.ts
+│   │   └── useWebSocket.test.ts
+│   ├── App.tsx
+│   ├── App.css
+│   ├── index.css
+│   └── main.tsx
+├── package.json
+└── README.md
 ```
 
-You can also install [eslint-plugin-react-x](https://npmx.dev/package/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://npmx.dev/package/eslint-plugin-react-dom) for React-specific lint rules:
+## Getting Started
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+### Prerequisites
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+- Node.js and npm
+- A WebSocket server accessible at `ws://localhost:8080`
 
+### Installation
+
+```bash
+npm install
 ```
-"# WebSocket-Control-Panel" 
+
+### Run the application
+
+```bash
+npm run dev
+```
+
+Open the local URL displayed by Vite.
+
+### WebSocket Server
+
+The application expects a WebSocket server running at:
+
+```text
+ws://localhost:8080
+```
+
+The local echo server used for development should be started separately before connecting.
+
+The frontend and WebSocket server are separate processes.
+
+## Testing
+
+Run automated tests:
+
+```bash
+npm run test
+```
+
+Run the production build:
+
+```bash
+npm run build
+```
+
+Run lint checks:
+
+```bash
+npm run lint
+```
+
+The test suite covers connection initialization, successful connections, message handling, blocked sends, intentional disconnections, reconnection after failure, component cleanup, unexpected disconnections, and duplicate-action protection.
+
+## Technical Decisions
+
+### Custom useWebSocket Hook
+
+WebSocket connection logic is separated from the UI to improve maintainability, reuse, and testability.
+
+### useRef vs useState
+
+`useRef` stores the WebSocket instance without triggering unnecessary re-renders.
+
+`useState` manages connection status, messages, and error feedback because changes to these values need to update the interface.
+
+### Connection Lifecycle
+
+The hook tracks connection states and prevents conflicting actions while a connection is opening or closing.
+
+### Error Handling
+
+Unexpected disconnections produce error feedback. Users can manually reconnect after a failed connection.
+
+### Resource Cleanup
+
+The hook closes the active WebSocket when its consuming component unmounts.
+
+### Testing Strategy
+
+A mocked WebSocket implementation is used to test lifecycle events without depending on a live server.
+
+Manual testing complements the automated suite.
+
+## Scope and Limitations
+
+- The application uses a configurable local WebSocket endpoint defined in the frontend code.
+- Automatic reconnection is not implemented; reconnection is user-initiated.
+- Messages are stored in React state and are not persisted across page reloads.
+- Authentication and production WebSocket infrastructure are outside the current implementation.
+
+## Assessment
+
+Developed for the BLACK NODE Frontend Internship technical assessment.
+
+The implementation prioritizes clarity, reliability, maintainability, and understandable engineering decisions.
