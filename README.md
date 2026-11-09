@@ -71,15 +71,47 @@ Open the local URL displayed by Vite.
 
 ### WebSocket Server
 
-The application expects a WebSocket server running at:
+
+This project includes a local WebSocket echo server built with the `ws` library.
+
+The server listens on port `8080` and sends received messages back to the client with an `Echo:` prefix.
+
+#### Start the server
+
+Open a terminal in the project root and run:
+
+```bash
+node server/index.cjs
+```
+
+The server will be available at:
 
 ```text
 ws://localhost:8080
 ```
 
-The local echo server used for development should be started separately before connecting.
+#### Start the frontend
 
-The frontend and WebSocket server are separate processes.
+Open a second terminal and run:
+
+```bash
+npm run dev
+```
+
+Open the URL provided by Vite.
+
+#### Test the connection
+
+1. Click **Connect**.
+2. Verify the status changes to **Connected**.
+3. Send a message such as `Hello`.
+4. Verify the response `Echo: Hello` appears.
+5. Click **Disconnect** and verify the status changes to **Disconnected**.
+
+To simulate an unexpected server shutdown, stop the server using `Ctrl + C` while the client is connected.
+
+The frontend and WebSocket server must run in separate terminal processes.
+
 
 ## Testing
 
