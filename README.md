@@ -1,33 +1,45 @@
-# BLACK NODE — WebSocket Control Panel
 
-A responsive, real-time WebSocket control panel built with React, TypeScript, and Vite as part of the BLACK NODE Frontend Internship technical assessment.
+# BLACK NODE — WebSocket Control Panel & Real-Time Events Viewer
 
-## Overview
+A responsive real-time monitoring application built with React, TypeScript, and WebSocket as part of the BLACK NODE Frontend Internship technical assessment.
 
-This application demonstrates client-side WebSocket connection management through a reusable React hook and a monitoring interface.
-
-The focus is on connection lifecycle management, predictable state transitions, error handling, and testability.
+The project contains two tasks, focusing on WebSocket communication, connection lifecycle management, real-time event processing, and reliable frontend architecture.
 
 ## Features
 
-- Connect to and disconnect from a WebSocket server
-- Send and receive messages in real time
-- Display connection states: disconnected, connecting, connected, disconnecting, and error
-- Handle unexpected disconnections and support manual reconnection
-- Prevent duplicate connection and disconnection actions
-- Display sent and received message activity
-- Preserve message history during reconnection
-- Automatically scroll to new messages while respecting manual scrolling
-- Responsive dark-themed monitoring interface
-- Accessible connection feedback and form controls
+### Task 1 — WebSocket Control Panel
+
+- Connect to and disconnect from a WebSocket server.
+- Send and receive messages in real time.
+- Display connection states: disconnected, connecting, connected, disconnecting, and error.
+- Handle unexpected disconnections and allow manual reconnection.
+- Prevent duplicate connection actions.
+- Display sent and received message history.
+- Show message activity statistics.
+- Automatically scroll to new messages while respecting manual scrolling.
+- Clean up WebSocket connections when components unmount.
+
+### Task 2 — Real-Time Events Viewer
+
+- Receive JSON events through a dedicated WebSocket endpoint.
+- Validate incoming event data before processing.
+- Display events with their type, message, and timestamp.
+- Support three event types: info, warning, and error.
+- Filter events by type or display all events.
+- Display real-time event statistics.
+- Ignore malformed events and track their count.
+- Support automatic scrolling while preserving manual reading position.
+- Handle connection and disconnection states.
 
 ## Tech Stack
 
 - React
 - TypeScript
 - Vite
-- Native WebSocket API
 - CSS
+- Native WebSocket API
+- Node.js
+- ws (WebSocket server)
 - Vitest
 - React Testing Library
 - jsdom
@@ -36,10 +48,23 @@ The focus is on connection lifecycle management, predictable state transitions, 
 
 ```text
 black-node-frontend/
+├── server/
+│   └── index.cjs
 ├── src/
+│   ├── components/
+│   │   ├── WebSocketPanel.tsx
+│   │   └── EventsViewer.tsx
 │   ├── hooks/
 │   │   ├── useWebSocket.ts
-│   │   └── useWebSocket.test.ts
+│   │   ├── useWebSocket.test.ts
+│   │   ├── useRealtimeEvents.ts
+│   │   └── useRealtimeEvents.test.ts
+│   ├── types/
+│   │   ├── realtimeEvent.ts
+│   │   └── realtimeEvent.test.ts
+│   ├── utils/
+│   │   ├── filterEvents.ts
+│   │   └── filterEvents.test.ts
 │   ├── App.tsx
 │   ├── App.css
 │   ├── index.css
@@ -52,16 +77,45 @@ black-node-frontend/
 
 ### Prerequisites
 
-- Node.js and npm
-- A WebSocket server accessible at `ws://localhost:8080`
+- Node.js
+- npm
+- An available local port 8080
 
-### Installation
+### 1. Clone the Repository
 
 ```bash
-npm install
+git clone https://github.com/farhaghallab3/WebSocket-Control-Panel.git
+cd WebSocket-Control-Panel
 ```
 
-### Run the application
+### 2. Install Dependencies
+
+```bash
+npm ci
+```
+
+### 3. Start the WebSocket Server
+
+Open a terminal in the project root:
+
+```bash
+node server/index.cjs
+```
+
+The server provides two WebSocket endpoints:
+
+| Endpoint | Purpose |
+|---|---|
+| `ws://localhost:8080` | Task 1 — Echo messages |
+| `ws://localhost:8080/events` | Task 2 — JSON event stream |
+
+The Task 1 endpoint echoes received messages with an `Echo:` prefix.
+
+The Task 2 endpoint generates simulated events approximately every two seconds.
+
+### 4. Start the React Application
+
+Open another terminal:
 
 ```bash
 npm run dev
@@ -69,56 +123,14 @@ npm run dev
 
 Open the local URL displayed by Vite.
 
-### WebSocket Server
-
-
-This project includes a local WebSocket echo server built with the `ws` library.
-
-The server listens on port `8080` and sends received messages back to the client with an `Echo:` prefix.
-
-#### Start the server
-
-Open a terminal in the project root and run:
-
-```bash
-node server/index.cjs
-```
-
-The server will be available at:
-
-```text
-ws://localhost:8080
-```
-
-#### Start the frontend
-
-Open a second terminal and run:
-
-```bash
-npm run dev
-```
-
-Open the URL provided by Vite.
-
-#### Test the connection
-
-1. Click **Connect**.
-2. Verify the status changes to **Connected**.
-3. Send a message such as `Hello`.
-4. Verify the response `Echo: Hello` appears.
-5. Click **Disconnect** and verify the status changes to **Disconnected**.
-
-To simulate an unexpected server shutdown, stop the server using `Ctrl + C` while the client is connected.
-
-The frontend and WebSocket server must run in separate terminal processes.
-
+Keep the WebSocket server running while testing the application.
 
 ## Testing
 
-Run automated tests:
+Run all automated tests:
 
 ```bash
-npm run test
+npx vitest run
 ```
 
 Run the production build:
@@ -127,53 +139,110 @@ Run the production build:
 npm run build
 ```
 
-Run lint checks:
+Run ESLint:
 
 ```bash
 npm run lint
 ```
 
-The test suite covers connection initialization, successful connections, message handling, blocked sends, intentional disconnections, reconnection after failure, component cleanup, unexpected disconnections, and duplicate-action protection.
+### Latest Local Verification
 
-## Technical Decisions
+| Test Suite | Passing Tests |
+|---|---:|
+| useWebSocket | 10 |
+| useRealtimeEvents | 7 |
+| parseEvent | 12 |
+| filterEvents | 6 |
+| **Total** | **35** |
 
-### Custom useWebSocket Hook
+Latest reported results:
 
-WebSocket connection logic is separated from the UI to improve maintainability, reuse, and testability.
+- 35 automated tests passed.
+- Production build passed.
+- ESLint passed.
+- Responsive checks passed at 320px, 375px, 768px, and 1440px.
+- Manual integration and connection lifecycle checks passed.
 
-### useRef vs useState
+These results were verified locally during development.
 
-`useRef` stores the WebSocket instance without triggering unnecessary re-renders.
+## Architecture & Technical Decisions
 
-`useState` manages connection status, messages, and error feedback because changes to these values need to update the interface.
+### Reusable WebSocket Hook
+
+The `useWebSocket` hook manages the WebSocket connection lifecycle independently of the user interface.
+
+It handles connection status, messages, sending, disconnection, error handling, and cleanup.
+
+### React useRef and useState
+
+`useRef` is used to store mutable values such as the WebSocket instance and auto-scroll tracking without triggering unnecessary re-renders.
+
+`useState` is used for values that affect the rendered interface.
+
+### Event Validation
+
+The `parseEvent` utility validates incoming JSON data before it is accepted as a real-time event.
+
+Invalid payloads are ignored to prevent malformed data from entering the event stream.
+
+### Event Filtering
+
+Filtering logic is separated into a reusable `filterEvents` utility.
+
+This keeps the UI simpler and allows filtering behavior to be tested independently.
 
 ### Connection Lifecycle
 
-The hook tracks connection states and prevents conflicting actions while a connection is opening or closing.
-
-### Error Handling
-
-Unexpected disconnections produce error feedback. Users can manually reconnect after a failed connection.
+The application handles connection states explicitly and prevents conflicting actions during connection or disconnection.
 
 ### Resource Cleanup
 
-The hook closes the active WebSocket when its consuming component unmounts.
+WebSocket connections are closed when their consuming components unmount.
 
-### Testing Strategy
+The local event server also stops the corresponding event stream when a client disconnects.
 
-A mocked WebSocket implementation is used to test lifecycle events without depending on a live server.
+## Manual Testing
 
-Manual testing complements the automated suite.
+### Task 1
 
-## Scope and Limitations
+1. Start the local WebSocket server.
+2. Open the WebSocket Control Panel.
+3. Connect to the server.
+4. Send `Hello`.
+5. Verify the response `Echo: Hello`.
+6. Disconnect manually.
+7. Reconnect and verify normal operation.
+8. Stop the server to simulate an unexpected disconnection.
 
-- The application uses a configurable local WebSocket endpoint defined in the frontend code.
-- Automatic reconnection is not implemented; reconnection is user-initiated.
-- Messages are stored in React state and are not persisted across page reloads.
-- Authentication and production WebSocket infrastructure are outside the current implementation.
+### Task 2
+
+1. Start the local WebSocket server.
+2. Open the Real-Time Events Viewer.
+3. Connect to the events endpoint.
+4. Verify that events appear automatically.
+5. Test the All Events, Info, Warning, and Error filters.
+6. Scroll up and verify that new events do not interrupt reading.
+7. Disconnect and reconnect.
+8. Verify event statistics and timestamps.
+
+## Scope & Limitations
+
+- WebSocket endpoints are configured for local development.
+- Automatic reconnection is not implemented; reconnection is manual.
+- Messages and events are stored in React state and are not persisted across page reloads.
+- Task 2 uses simulated event data rather than real production telemetry.
+- Authentication and production WebSocket infrastructure are outside the current scope.
 
 ## Assessment
 
 Developed for the BLACK NODE Frontend Internship technical assessment.
 
-The implementation prioritizes clarity, reliability, maintainability, and understandable engineering decisions.
+The implementation prioritizes:
+
+- Maintainable architecture
+- Reliable connection handling
+- Clear separation of concerns
+- Responsive user interfaces
+- Automated testing
+- Predictable state management
+
