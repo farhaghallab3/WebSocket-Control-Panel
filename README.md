@@ -1,248 +1,172 @@
+# BLACK NODE — Frontend Engineering Technical Assessment
 
-# BLACK NODE — WebSocket Control Panel & Real-Time Events Viewer
+A responsive React + TypeScript application built for the **BLACK NODE Frontend Internship** technical assessment. It includes all three Frontend track assignments: a WebSocket connection panel, a real-time JSON events viewer, and a simulated remote desktop interface.
 
-A responsive real-time monitoring application built with React, TypeScript, and WebSocket as part of the BLACK NODE Frontend Internship technical assessment.
-
-The project contains two tasks, focusing on WebSocket communication, connection lifecycle management, real-time event processing, and reliable frontend architecture.
+The project emphasizes understandable state transitions, resilient connection handling, maintainable component boundaries, responsive design, and automated tests.
 
 ## Features
 
-### Task 1 — WebSocket Control Panel
+### Task 1 — Real-Time WebSocket Connection Panel
 
-- Connect to and disconnect from a WebSocket server.
-- Send and receive messages in real time.
-- Display connection states: disconnected, connecting, connected, disconnecting, and error.
-- Handle unexpected disconnections and allow manual reconnection.
-- Prevent duplicate connection actions.
-- Display sent and received message history.
-- Show message activity statistics.
-- Automatically scroll to new messages while respecting manual scrolling.
-- Clean up WebSocket connections when components unmount.
+- Connect to and disconnect from a local WebSocket echo server.
+- Send text messages and display received responses in real time.
+- Show connection status: `disconnected`, `connecting`, `connected`, `disconnecting`, or `error`.
+- Handle unexpected disconnects, manual retries, and duplicate connection actions.
+- Display sent/received message history and counts.
+- Scroll automatically when the user is near the bottom, without interrupting history reading.
+- Close the connection when the component unmounts.
 
 ### Task 2 — Real-Time Events Viewer
 
-- Receive JSON events through a dedicated WebSocket endpoint.
-- Validate incoming event data before processing.
-- Display events with their type, message, and timestamp.
-- Support three event types: info, warning, and error.
-- Filter events by type or display all events.
-- Display real-time event statistics.
-- Ignore malformed events and track their count.
-- Support automatic scrolling while preserving manual reading position.
-- Handle connection and disconnection states.
+- Subscribe to JSON events via a separate WebSocket endpoint.
+- Validate incoming IDs, timestamps, types, and messages through `parseEvent`.
+- Display event type (`info`, `warning`, `error`), message, and timestamp.
+- Filter by event type or show all events.
+- Track event statistics and count rejected malformed messages.
+- Display new events without a page refresh and preserve reading position when scrolling through history.
+- Show connection, empty, and error states.
+
+The events are **simulated test data**, generated about every two seconds. An event with type `error` represents example event content, not necessarily a failure of the WebSocket connection.
+
+### Task 3 — Basic VNC / Remote Desktop Interface
+
+- Simulate connecting to and disconnecting from a remote desktop session.
+- Display `disconnected`, `connecting`, `connected`, `disconnecting`, and `error` states.
+- Render a clearly marked mock remote desktop viewport when connected.
+- Simulate a session failure, display an error, and allow manual retry.
+- Support disconnecting while a connection is in progress.
+- Prevent repeated connection attempts and clean up pending timers when leaving the screen.
+
+**Mock implementation / noVNC integration point:** Task 3 does not use a real VNC server, credentials, or a live remote desktop. `src/hooks/useRemoteSession.ts` simulates the session lifecycle using timers; `src/components/RemoteDesktop.tsx` renders the mock viewport and session controls. For future real integration, a noVNC client would be initialized and disposed in the session lifecycle, the client display would mount within the remote desktop viewport, and its connection, disconnect, and error events would update the same UI states. This integration is **not implemented** in this assessment.
 
 ## Tech Stack
 
-- React
-- TypeScript
-- Vite
-- CSS
-- Native WebSocket API
-- Node.js
-- ws (WebSocket server)
-- Vitest
-- React Testing Library
-- jsdom
+- React and TypeScript
+- Vite and CSS
+- Native browser WebSocket API
+- Node.js and the `ws` package (local test server)
+- Vitest, React Testing Library, and jsdom
 
 ## Project Structure
 
 ```text
-black-node-frontend/
-├── server/
-│   └── index.cjs
-├── src/
-│   ├── components/
-│   │   ├── WebSocketPanel.tsx
-│   │   └── EventsViewer.tsx
-│   ├── hooks/
-│   │   ├── useWebSocket.ts
-│   │   ├── useWebSocket.test.ts
-│   │   ├── useRealtimeEvents.ts
-│   │   └── useRealtimeEvents.test.ts
-│   ├── types/
-│   │   ├── realtimeEvent.ts
-│   │   └── realtimeEvent.test.ts
-│   ├── utils/
-│   │   ├── filterEvents.ts
-│   │   └── filterEvents.test.ts
-│   ├── App.tsx
-│   ├── App.css
-│   ├── index.css
-│   └── main.tsx
-├── package.json
-└── README.md
+server/
+  index.cjs
+src/
+  components/
+    WebSocketPanel.tsx
+    EventsViewer.tsx
+    RemoteDesktop.tsx
+    RemoteDesktop.test.tsx
+  hooks/
+    useWebSocket.ts
+    useWebSocket.test.ts
+    useRealtimeEvents.ts
+    useRealtimeEvents.test.ts
+    useRemoteSession.ts
+    useRemoteSession.test.ts
+  types/
+    realtimeEvent.ts
+    realtimeEvent.test.ts
+    remoteSession.ts
+  utils/
+    filterEvents.ts
+    filterEvents.test.ts
+  App.tsx
+  App.css
+  index.css
+  main.tsx
+package.json
+README.md
 ```
 
 ## Getting Started
 
 ### Prerequisites
 
-- Node.js
-- npm
-- An available local port 8080
+- Node.js and npm
+- Port `8080` available for the local WebSocket server (Tasks 1 and 2 only)
 
-### 1. Clone the Repository
+### Clone and install
 
 ```bash
 git clone https://github.com/farhaghallab3/WebSocket-Control-Panel.git
 cd WebSocket-Control-Panel
-```
-
-### 2. Install Dependencies
-
-```bash
 npm ci
 ```
 
-### 3. Start the WebSocket Server
+### Run the server for Tasks 1 and 2
 
-Open a terminal in the project root:
+In the first terminal, from the project root:
 
 ```bash
 node server/index.cjs
 ```
 
-The server provides two WebSocket endpoints:
+| Endpoint | Use |
+| --- | --- |
+| `ws://localhost:8080/` | Task 1 — Echo messages with the `Echo: ` prefix |
+| `ws://localhost:8080/events` | Task 2 — Simulated JSON event stream |
 
-| Endpoint | Purpose |
-|---|---|
-| `ws://localhost:8080` | Task 1 — Echo messages |
-| `ws://localhost:8080/events` | Task 2 — JSON event stream |
+### Run the frontend
 
-The Task 1 endpoint echoes received messages with an `Echo:` prefix.
-
-The Task 2 endpoint generates simulated events approximately every two seconds.
-
-### 4. Start the React Application
-
-Open another terminal:
+In a second terminal:
 
 ```bash
 npm run dev
 ```
 
-Open the local URL displayed by Vite.
+Open the local URL printed by Vite and select **WebSocket Panel**, **Events Viewer**, or **Remote Desktop** from the navigation.
 
-Keep the WebSocket server running while testing the application.
+**Task 3 works without starting the WebSocket server.** It is a browser-only simulation; no VNC/noVNC endpoint is required.
 
-## Testing
-
-Run all automated tests:
+## Tests and Quality Checks
 
 ```bash
-npx vitest run
-```
-
-Run the production build:
-
-```bash
+npm run test
 npm run build
-```
-
-Run ESLint:
-
-```bash
 npm run lint
 ```
 
-### Latest Local Verification
+Latest **user-reported local** verification on **November 9, 2026**:
 
-| Test Suite | Passing Tests |
-|---|---:|
-| useWebSocket | 10 |
-| useRealtimeEvents | 7 |
-| parseEvent | 12 |
-| filterEvents | 6 |
-| **Total** | **35** |
+| Test suite | Passed |
+| --- | ---: |
+| `useWebSocket` | 10 |
+| `useRealtimeEvents` | 7 |
+| `parseEvent` | 12 |
+| `filterEvents` | 6 |
+| `useRemoteSession` | 8 |
+| `RemoteDesktop` component integration | 5 |
+| **Total** | **48 / 48** |
 
-Latest reported results:
+The reported production build and ESLint run also passed. Manual responsive checks were reported successful at **320px, 375px, 768px, and 1440px**, along with navigation and connection-state smoke tests. These are local results, not a claim of GitHub Actions CI execution.
 
-- 35 automated tests passed.
-- Production build passed.
-- ESLint passed.
-- Responsive checks passed at 320px, 375px, 768px, and 1440px.
-- Manual integration and connection lifecycle checks passed.
+## Manual Verification
 
-These results were verified locally during development.
+**Task 1:** Start the local server, connect, send `Hello`, confirm `Echo: Hello`, disconnect, and reconnect. Stop the server while connected to inspect unexpected-disconnection feedback.
 
-## Architecture & Technical Decisions
+**Task 2:** Start the server, connect to the event stream, verify incoming events and timestamps, switch between All/Info/Warning/Error filters, scroll up to read older events, then disconnect and reconnect.
 
-### Reusable WebSocket Hook
+**Task 3:** Select Remote Desktop (no server needed), click Connect, observe the connecting state and mock desktop, then Disconnect. Try disconnecting while connecting; reconnect and click Simulate Error; confirm error feedback and successful manual retry. Switching tabs unmounts the previous task view.
 
-The `useWebSocket` hook manages the WebSocket connection lifecycle independently of the user interface.
+## Architecture and Design Decisions
 
-It handles connection status, messages, sending, disconnection, error handling, and cleanup.
+- **Shared WebSocket hook:** `useWebSocket` owns the connection lifecycle, message state, and cleanup for Tasks 1 and 2.
+- **Event boundary:** `useRealtimeEvents` adapts received text into validated events; `parseEvent` rejects malformed payloads and `filterEvents` supplies independently tested filtering logic.
+- **Mock remote-session boundary:** `useRemoteSession` owns the Task 3 simulated connection state, guards, timers, and retry logic, independently of its UI.
+- **Refs and React state:** Refs track mutable socket/timer/scroll values; state updates UI. Cleanup prevents lingering connections or timers after unmounting.
+- **Accessibility and responsive layout:** Labeled controls, feedback for connection state and errors, and layouts designed for small and large screens.
 
-### React useRef and useState
+## Assumptions and Limitations
 
-`useRef` is used to store mutable values such as the WebSocket instance and auto-scroll tracking without triggering unnecessary re-renders.
-
-`useState` is used for values that affect the rendered interface.
-
-### Event Validation
-
-The `parseEvent` utility validates incoming JSON data before it is accepted as a real-time event.
-
-Invalid payloads are ignored to prevent malformed data from entering the event stream.
-
-### Event Filtering
-
-Filtering logic is separated into a reusable `filterEvents` utility.
-
-This keeps the UI simpler and allows filtering behavior to be tested independently.
-
-### Connection Lifecycle
-
-The application handles connection states explicitly and prevents conflicting actions during connection or disconnection.
-
-### Resource Cleanup
-
-WebSocket connections are closed when their consuming components unmount.
-
-The local event server also stops the corresponding event stream when a client disconnects.
-
-## Manual Testing
-
-### Task 1
-
-1. Start the local WebSocket server.
-2. Open the WebSocket Control Panel.
-3. Connect to the server.
-4. Send `Hello`.
-5. Verify the response `Echo: Hello`.
-6. Disconnect manually.
-7. Reconnect and verify normal operation.
-8. Stop the server to simulate an unexpected disconnection.
-
-### Task 2
-
-1. Start the local WebSocket server.
-2. Open the Real-Time Events Viewer.
-3. Connect to the events endpoint.
-4. Verify that events appear automatically.
-5. Test the All Events, Info, Warning, and Error filters.
-6. Scroll up and verify that new events do not interrupt reading.
-7. Disconnect and reconnect.
-8. Verify event statistics and timestamps.
-
-## Scope & Limitations
-
-- WebSocket endpoints are configured for local development.
-- Automatic reconnection is not implemented; reconnection is manual.
-- Messages and events are stored in React state and are not persisted across page reloads.
-- Task 2 uses simulated event data rather than real production telemetry.
-- Authentication and production WebSocket infrastructure are outside the current scope.
+- WebSocket URLs are configured for **local development**; hosted use would require configurable endpoints and a reachable WebSocket server.
+- Reconnection is manual, not automatic.
+- Message and event history is held in component memory; refreshing the page or switching tasks resets the relevant component state.
+- Events are generated as test data and are not live infrastructure monitoring.
+- Task 3 is a **mock VNC interface only**: no VNC protocol communication, noVNC package, remote host, or actual desktop interaction.
+- No credentials, API keys, customer information, or sensitive infrastructure are included. Authentication, persistence, and production deployment are outside the assessment scope.
 
 ## Assessment
 
-Developed for the BLACK NODE Frontend Internship technical assessment.
-
-The implementation prioritizes:
-
-- Maintainable architecture
-- Reliable connection handling
-- Clear separation of concerns
-- Responsive user interfaces
-- Automated testing
-- Predictable state management
-
+Developed for the **BLACK NODE Frontend Internship** technical assignments. The three tasks share a consistent dashboard design while keeping networking, validation, simulation, and presentation responsibilities separate.
